@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAssessmentStore } from '../../src/store/assessmentStore';
 import { PLANS, PRODUCT_PRICES } from '../../src/constants/plans';
 import type { ProductItem } from '../../src/constants/plans';
+import { saveAssessment } from '../../src/lib/saveAssessment';
 
 // ─── Per-product benefit copy ──────────────────────────────────────────────
 const PRODUCT_BENEFITS: Record<string, string> = {
@@ -60,6 +61,16 @@ export default function PlanResultScreen() {
   const { plan_id, derm_flag } = profile;
   const plan       = plan_id ? PLANS[plan_id] : null;
   const doctorText = plan_id ? DOCTOR_TEXT[plan_id] : '';
+
+  // Save to Supabase once when this screen first loads. useRef prevents a
+  // double-save if React re-renders the component (e.g. Strict Mode).
+  const hasSaved = useRef(false);
+  useEffect(() => {
+    if (!hasSaved.current) {
+      hasSaved.current = true;
+      saveAssessment(profile);
+    }
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
