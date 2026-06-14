@@ -35,7 +35,7 @@ export async function saveAssessment(profile: AssessmentProfile): Promise<void> 
 
   console.log('[saveAssessment] inserting payload:', JSON.stringify(payload, null, 2));
 
-  const { data, error } = await supabase.from('assessments').insert(payload).select();
+  const { data, error } = await supabase.from('Assessments').insert(payload).select();
 
   if (error) {
     console.error('[saveAssessment] INSERT FAILED');
