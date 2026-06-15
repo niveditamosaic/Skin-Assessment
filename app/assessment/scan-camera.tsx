@@ -215,7 +215,7 @@ export default function ScanCameraScreen() {
     });
 
     applyScanOverrides();
-    router.replace('/assessment/skin-analysis' as any);
+    router.replace('/assessment/skin-report' as any);
   }, [setScanResults, applyScanOverrides]);
 
   // ----------------------------------------------------------------
