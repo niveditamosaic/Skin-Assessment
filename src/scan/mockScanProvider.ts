@@ -6,15 +6,16 @@ import type { ScanInput, ScanOutput } from './types';
 export const mockScanProvider: ScanProvider = {
   async analyse(_input: ScanInput): Promise<ScanOutput> {
     await new Promise(resolve => setTimeout(resolve, 2000));
-    // Values are set high enough to trigger the override rules in applyScanOverrides:
-    // acne:'moderate' → adds 'acne' concern if not already selected in Q3
-    // tan:'widespread' → adds 'tanning' concern if not already selected in Q3
-    // pigmentation:'moderate' → stored in profile for findings text (no override rule yet)
+    // Conservative values that do NOT trigger applyScanOverrides injection rules.
+    // Override rules require acne:'moderate'|'severe', tan:'widespread',
+    // pigmentation:'moderate'|'deep' to add new concerns. Keeping these below
+    // those thresholds means the scan confirms findings without overwriting what
+    // the user selected in Q3. A real scan API (Phase 2) will return actual values.
     return {
-      oiliness: 'high',
-      acne: 'moderate',
-      pigmentation: 'moderate',
-      tan: 'widespread',
+      oiliness: 'medium',
+      acne: 'mild',
+      pigmentation: 'superficial',
+      tan: 'patchy',
       texture: 'uneven',
     };
   },

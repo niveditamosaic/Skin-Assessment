@@ -127,6 +127,7 @@ export const useAssessmentStore = create<AssessmentState>((set, get) => ({
     }
 
     const plan_id = determinePlan(profile.concerns, severity);
+    console.log('[finaliseSeverityAndPlan] concerns:', JSON.stringify(profile.concerns), '| severity:', severity, '→ plan_id:', plan_id);
     set(s => ({ profile: { ...s.profile, severity, derm_flag, plan_id } }));
   },
 
@@ -171,6 +172,7 @@ export const useAssessmentStore = create<AssessmentState>((set, get) => ({
     }
 
     const plan_id = determinePlan(updatedConcerns, severity);
+    console.log('[applyScanOverrides] concerns before:', JSON.stringify(profile.concerns), '| concerns after:', JSON.stringify(updatedConcerns), '| severity:', severity, '→ plan_id:', plan_id);
     set(s => ({
       profile: { ...s.profile, concerns: updatedConcerns, severity, plan_id },
     }));
