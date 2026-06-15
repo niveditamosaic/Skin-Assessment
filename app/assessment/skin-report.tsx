@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,8 @@ import {
   ScrollView,
   TouchableOpacity,
   useWindowDimensions,
+  ActivityIndicator,
+  Animated,
 } from 'react-native';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -15,6 +17,8 @@ import type { Concern } from '../../src/types/assessment';
 import { PLANS, PRODUCT_PRICES } from '../../src/constants/plans';
 import type { ProductItem } from '../../src/constants/plans';
 import { saveAssessment } from '../../src/lib/saveAssessment';
+import { detectFaceZones } from '../../src/lib/faceMesh';
+import type { FaceZonePositions } from '../../src/lib/faceMesh';
 
 // ─── Concern dot markers ───────────────────────────────────────────────────
 // Positions are fractions of the photo's width/height.
@@ -48,6 +52,14 @@ const MARKER_COLORS: Record<string, string> = {
 };
 
 const MARKER_SIZE = 10;
+
+// Maps each concern to the face zone keys from FaceZonePositions that should
+// receive a dot marker when MediaPipe landmarks are available.
+const CONCERN_ZONES: Record<string, (keyof FaceZonePositions)[]> = {
+  acne:       ['forehead', 'left_cheek', 'right_cheek', 'nose', 'chin'],
+  dark_spots: ['left_cheek', 'right_cheek', 'left_under_eye', 'right_under_eye'],
+  tanning:    ['forehead', 'nose', 'left_temple', 'right_temple'],
+};
 
 // ─── Product copy ──────────────────────────────────────────────────────────
 const PRODUCT_BENEFITS: Record<string, string> = {
@@ -191,6 +203,15 @@ function ProductCard({ product }: { product: ProductItem }) {
   );
 }
 
+// ─── Animation config ─────────────────────────────────────────────────────
+// One animated slot per content section that fades in after detection.
+// Indices: 0=summary, 1=cause, 2=plan, 3=timeline, 4=derm, 5=startOver+sticky
+const SECTION_COUNT = 6;
+
+function makeSectionAnim() {
+  return { opacity: new Animated.Value(0), translateY: new Animated.Value(16) };
+}
+
 // ─── Screen ────────────────────────────────────────────────────────────────
 export default function SkinReportScreen() {
   const { profile, capturedImageUri, reset } = useAssessmentStore();
@@ -205,11 +226,64 @@ export default function SkinReportScreen() {
   const planTotal = profile.plan_id ? calculatePlanTotal(profile.plan_id) : 0;
   const isSevere  = profile.severity === 'severe' || profile.derm_flag;
 
-  // Diagnostic — confirm plan_id and product list on every render.
   console.log('[SkinReport] plan_id:', profile.plan_id, '| concerns:', JSON.stringify(profile.concerns));
   console.log('[SkinReport] products:', plan ? plan.products.map(p => p.name).join(', ') : 'none');
 
-  // Save to Supabase once on mount.
+  // ── MediaPipe face zone detection ────────────────────────────────────────
+  const [faceZones, setFaceZones]   = useState<FaceZonePositions | null>(null);
+  // Always start in 'detecting' so the loading screen shows immediately.
+  const [faceState, setFaceState]   = useState<'detecting' | 'done'>('detecting');
+  const detectionSettled            = useRef(false);
+
+  const settle = (zones: FaceZonePositions | null) => {
+    if (detectionSettled.current) return;
+    detectionSettled.current = true;
+    setFaceZones(zones);
+    setFaceState('done');
+  };
+
+  useEffect(() => {
+    // Hard 15-second cap — never make the user wait longer than this.
+    const cap = setTimeout(() => settle(null), 15_000);
+
+    if (capturedImageUri) {
+      detectFaceZones(capturedImageUri).then(zones => {
+        clearTimeout(cap);
+        settle(zones);
+      });
+    } else {
+      // No photo: skip detection entirely, go straight to report.
+      clearTimeout(cap);
+      settle(null);
+    }
+
+    return () => clearTimeout(cap);
+  }, []);
+
+  // ── Stagger animation once detection finishes ─────────────────────────
+  const anims = useRef(
+    Array.from({ length: SECTION_COUNT }, makeSectionAnim)
+  ).current;
+
+  useEffect(() => {
+    if (faceState !== 'done') return;
+    Animated.stagger(
+      110,
+      anims.map(a =>
+        Animated.parallel([
+          Animated.timing(a.opacity,     { toValue: 1, duration: 380, useNativeDriver: true }),
+          Animated.timing(a.translateY,  { toValue: 0, duration: 380, useNativeDriver: true }),
+        ])
+      )
+    ).start();
+  }, [faceState]);
+
+  const animStyle = (i: number) => ({
+    opacity:   anims[i].opacity,
+    transform: [{ translateY: anims[i].translateY }],
+  });
+
+  // ── Save to Supabase once on mount ───────────────────────────────────
   const hasSaved = useRef(false);
   useEffect(() => {
     if (!hasSaved.current) {
@@ -218,24 +292,57 @@ export default function SkinReportScreen() {
     }
   }, []);
 
-  return (
-    <SafeAreaView style={s.root}>
+  // ── Marker helper ──────────────────────────────────────────────────────
+  const renderMarkers = () =>
+    profile.concerns.map(concern => {
+      const color = MARKER_COLORS[concern];
+      if (!color) return null;
 
-      {/* ── Scrollable content ── */}
+      if (faceZones) {
+        return (CONCERN_ZONES[concern] ?? []).map(zone => {
+          const pos = faceZones[zone];
+          if (!pos) return null;
+          return (
+            <View
+              key={`${concern}-${zone}`}
+              style={[s.marker, {
+                left:            pos.x * photoW - MARKER_SIZE / 2,
+                top:             pos.y * photoH - MARKER_SIZE / 2,
+                backgroundColor: color,
+              }]}
+            />
+          );
+        });
+      }
+
+      return (MARKERS[concern] ?? []).map((pos, i) => (
+        <View
+          key={`${concern}-${i}`}
+          style={[s.marker, {
+            left:            pos.x * photoW - MARKER_SIZE / 2,
+            top:             pos.y * photoH - MARKER_SIZE / 2,
+            backgroundColor: color,
+          }]}
+        />
+      ));
+    });
+
+  const isLoading = faceState === 'detecting';
+
+  return (
+    <SafeAreaView style={[s.root, isLoading && s.rootLoading]}>
+
       <ScrollView
-        contentContainerStyle={s.scroll}
+        contentContainerStyle={[s.scroll, isLoading && s.scrollLoading]}
         showsVerticalScrollIndicator={false}
       >
-
-        {/* ════════════════════════════════════════════════════
-            SECTION 1 — Face Analysis Header
-        ════════════════════════════════════════════════════ */}
-        <View style={s.navBar}>
+        {/* ── Nav bar — always visible ── */}
+        <View style={[s.navBar, isLoading && s.navBarLoading]}>
           <Text style={s.navBrand}>MAN MATTERS</Text>
           <Text style={s.navTitle}>Skin Assessment Report</Text>
         </View>
 
-        {/* Photo with concern markers */}
+        {/* ── Photo ── */}
         <View style={[s.photoWrap, { width: photoW, height: photoH }]}>
           {capturedImageUri ? (
             <Image source={{ uri: capturedImageUri }} style={s.photo} resizeMode="cover" />
@@ -246,147 +353,146 @@ export default function SkinReportScreen() {
             </View>
           )}
 
-          {/* Concern dot markers */}
-          {profile.concerns.map(concern => {
-            const positions = MARKERS[concern];
-            const color     = MARKER_COLORS[concern];
-            if (!positions || !color) return null;
-            return positions.map((pos, i) => (
-              <View
-                key={`${concern}-${i}`}
-                style={[
-                  s.marker,
-                  {
-                    left:  pos.x * photoW - MARKER_SIZE / 2,
-                    top:   pos.y * photoH - MARKER_SIZE / 2,
-                    backgroundColor: color,
-                  },
-                ]}
-              />
-            ));
-          })}
-        </View>
-
-        {/* Clinical summary card */}
-        <View style={s.summaryCard}>
-          <View style={s.summaryRow}>
-            <View style={s.summaryField}>
-              <Text style={s.summaryLabel}>KEY CONCERN</Text>
-              <Text style={s.summaryValue}>{formatKeyConcern(profile.concerns)}</Text>
+          {/* Loading overlay — sits over photo while detecting */}
+          {isLoading && (
+            <View style={s.analysisOverlay}>
+              <ActivityIndicator size="small" color="#FFFFFF" style={{ marginBottom: 10 }} />
             </View>
-            <View style={s.summaryField}>
-              <Text style={s.summaryLabel}>SKIN TYPE</Text>
-              <Text style={s.summaryValue}>{formatSkinType(profile.skin_type)}</Text>
-            </View>
-            <View style={s.summaryField}>
-              <Text style={s.summaryLabel}>SEVERITY</Text>
-              <View style={[s.severityBadge, isSevere ? s.severeBadge : s.mildBadge]}>
-                <Text style={[s.severityBadgeText, isSevere ? s.severeBadgeText : s.mildBadgeText]}>
-                  {isSevere ? 'Severe' : 'Mild'}
-                </Text>
-              </View>
-            </View>
-          </View>
-
-          {isSevere && (
-            <TouchableOpacity style={s.dermCta} activeOpacity={0.85}>
-              <Text style={s.dermCtaText}>🩺  Consult a Dermatologist for Free</Text>
-            </TouchableOpacity>
           )}
+
+          {/* Concern markers — shown only after detection finishes */}
+          {!isLoading && renderMarkers()}
         </View>
 
-        {/* ════════════════════════════════════════════════════
-            SECTION 2 — Cause Analysis
-        ════════════════════════════════════════════════════ */}
-        <View style={s.section}>
-          <Text style={s.eyebrow}>SKIN ANALYSIS</Text>
-          <Text style={s.sectionHeading}>What's causing this?</Text>
-          <Text style={s.causeText}>{causeText}</Text>
-        </View>
+        {/* Loading caption below photo */}
+        {isLoading && (
+          <View style={s.loadingCaption}>
+            <Text style={s.loadingTitle}>Analysing your skin...</Text>
+            <Text style={s.loadingSubtitle}>This usually takes a few seconds</Text>
+          </View>
+        )}
 
         {/* ════════════════════════════════════════════════════
-            SECTION 3 — Treatment Plan
+            Sections — animated in after detection
         ════════════════════════════════════════════════════ */}
-        <View style={s.section}>
-          <Text style={s.eyebrow}>YOUR PRESCRIPTION</Text>
-          <Text style={s.sectionHeading}>Your treatment plan — crafted for your skin</Text>
-          <Text style={s.sectionSubheading}>
-            Recommended by a dermatologist based on your skin analysis.
-          </Text>
 
-          {plan ? plan.products.map(p => (
-            <ProductCard key={p.name} product={p} />
-          )) : null}
-        </View>
-
-        {/* ════════════════════════════════════════════════════
-            SECTION 4 — Results Timeline
-        ════════════════════════════════════════════════════ */}
-        <View style={s.section}>
-          <Text style={s.eyebrow}>WHAT TO EXPECT</Text>
-          <Text style={s.sectionHeading}>See results in 3 months</Text>
-
-          {timeline.map((phase, idx) => {
-            const isLast = idx === timeline.length - 1;
-            return (
-              <View key={phase.phase} style={tStyles.row}>
-                {/* Left: node + connector line */}
-                <View style={tStyles.rail}>
-                  <View style={[tStyles.node, { backgroundColor: phase.accentColor }]} />
-                  {!isLast && <View style={tStyles.connector} />}
-                </View>
-                {/* Right: content */}
-                <View style={[tStyles.content, isLast && tStyles.contentLast]}>
-                  <Text style={[tStyles.period, { color: phase.accentColor }]}>{phase.period}</Text>
-                  <Text style={tStyles.phase}>{phase.phase}</Text>
-                  {phase.bullets.map(b => (
-                    <Text key={b} style={tStyles.bullet}>· {b}</Text>
-                  ))}
+        {/* 0 — Key Concern summary card */}
+        <Animated.View style={[{ width: '100%' }, animStyle(0)]}>
+          <View style={s.summaryCard}>
+            <View style={s.summaryRow}>
+              <View style={s.summaryField}>
+                <Text style={s.summaryLabel}>KEY CONCERN</Text>
+                <Text style={s.summaryValue}>{formatKeyConcern(profile.concerns)}</Text>
+              </View>
+              <View style={s.summaryField}>
+                <Text style={s.summaryLabel}>SKIN TYPE</Text>
+                <Text style={s.summaryValue}>{formatSkinType(profile.skin_type)}</Text>
+              </View>
+              <View style={s.summaryField}>
+                <Text style={s.summaryLabel}>SEVERITY</Text>
+                <View style={[s.severityBadge, isSevere ? s.severeBadge : s.mildBadge]}>
+                  <Text style={[s.severityBadgeText, isSevere ? s.severeBadgeText : s.mildBadgeText]}>
+                    {isSevere ? 'Severe' : 'Mild'}
+                  </Text>
                 </View>
               </View>
-            );
-          })}
-        </View>
-
-        {/* ════════════════════════════════════════════════════
-            SECTION 5 — Derm Consultation Banner
-        ════════════════════════════════════════════════════ */}
-        <View style={s.dermBanner}>
-          <View style={s.dermAvatarBox}>
-            <Text style={s.dermAvatarIcon}>👨‍⚕️</Text>
+            </View>
+            {isSevere && (
+              <TouchableOpacity style={s.dermCta} activeOpacity={0.85}>
+                <Text style={s.dermCtaText}>🩺  Consult a Dermatologist for Free</Text>
+              </TouchableOpacity>
+            )}
           </View>
-          <Text style={s.dermBannerHeading}>
-            Not sure about your plan?{'\n'}Talk to one of our dermatologists.
-          </Text>
-          <Text style={s.dermBannerSub}>
-            All our dermatologists are MBBS / MD qualified with 10+ years of clinical experience.
-          </Text>
-          <TouchableOpacity style={s.dermBannerBtn} activeOpacity={0.85}>
-            <Text style={s.dermBannerBtnText}>Book a Free Consultation</Text>
-          </TouchableOpacity>
-        </View>
+        </Animated.View>
 
-        {/* Start over */}
-        <TouchableOpacity
-          style={s.startOver}
-          onPress={() => { reset(); router.replace('/'); }}
-          activeOpacity={0.7}
-        >
-          <Text style={s.startOverText}>Start over</Text>
-        </TouchableOpacity>
+        {/* 1 — Cause Analysis */}
+        <Animated.View style={[{ width: '100%' }, animStyle(1)]}>
+          <View style={s.section}>
+            <Text style={s.eyebrow}>SKIN ANALYSIS</Text>
+            <Text style={s.sectionHeading}>What's causing this?</Text>
+            <Text style={s.causeText}>{causeText}</Text>
+          </View>
+        </Animated.View>
+
+        {/* 2 — Treatment Plan */}
+        <Animated.View style={[{ width: '100%' }, animStyle(2)]}>
+          <View style={s.section}>
+            <Text style={s.eyebrow}>YOUR PRESCRIPTION</Text>
+            <Text style={s.sectionHeading}>Your treatment plan — crafted for your skin</Text>
+            <Text style={s.sectionSubheading}>
+              Recommended by a dermatologist based on your skin analysis.
+            </Text>
+            {plan ? plan.products.map(p => <ProductCard key={p.name} product={p} />) : null}
+          </View>
+        </Animated.View>
+
+        {/* 3 — Results Timeline */}
+        <Animated.View style={[{ width: '100%' }, animStyle(3)]}>
+          <View style={s.section}>
+            <Text style={s.eyebrow}>WHAT TO EXPECT</Text>
+            <Text style={s.sectionHeading}>See results in 3 months</Text>
+            {timeline.map((phase, idx) => {
+              const isLast = idx === timeline.length - 1;
+              return (
+                <View key={phase.phase} style={tStyles.row}>
+                  <View style={tStyles.rail}>
+                    <View style={[tStyles.node, { backgroundColor: phase.accentColor }]} />
+                    {!isLast && <View style={tStyles.connector} />}
+                  </View>
+                  <View style={[tStyles.content, isLast && tStyles.contentLast]}>
+                    <Text style={[tStyles.period, { color: phase.accentColor }]}>{phase.period}</Text>
+                    <Text style={tStyles.phase}>{phase.phase}</Text>
+                    {phase.bullets.map(b => (
+                      <Text key={b} style={tStyles.bullet}>· {b}</Text>
+                    ))}
+                  </View>
+                </View>
+              );
+            })}
+          </View>
+        </Animated.View>
+
+        {/* 4 — Derm Banner */}
+        <Animated.View style={[{ width: '100%' }, animStyle(4)]}>
+          <View style={s.dermBanner}>
+            <View style={s.dermAvatarBox}>
+              <Text style={s.dermAvatarIcon}>👨‍⚕️</Text>
+            </View>
+            <Text style={s.dermBannerHeading}>
+              Not sure about your plan?{'\n'}Talk to one of our dermatologists.
+            </Text>
+            <Text style={s.dermBannerSub}>
+              All our dermatologists are MBBS / MD qualified with 10+ years of clinical experience.
+            </Text>
+            <TouchableOpacity style={s.dermBannerBtn} activeOpacity={0.85}>
+              <Text style={s.dermBannerBtnText}>Book a Free Consultation</Text>
+            </TouchableOpacity>
+          </View>
+        </Animated.View>
+
+        {/* 5 — Start over */}
+        <Animated.View style={animStyle(5)}>
+          <TouchableOpacity
+            style={s.startOver}
+            onPress={() => { reset(); router.replace('/'); }}
+            activeOpacity={0.7}
+          >
+            <Text style={s.startOverText}>Start over</Text>
+          </TouchableOpacity>
+        </Animated.View>
 
       </ScrollView>
 
-      {/* ════════════════════════════════════════════════════
-          SECTION 6 — Sticky Add to Cart Button
-      ════════════════════════════════════════════════════ */}
-      <View style={s.stickyBar}>
-        <TouchableOpacity style={s.stickyBtn} activeOpacity={0.9}>
-          <Text style={s.stickyBtnText}>
-            Add plan to cart — ₹{planTotal.toLocaleString('en-IN')}
-          </Text>
-        </TouchableOpacity>
-      </View>
+      {/* ── Sticky Add to Cart — hidden during loading ── */}
+      {!isLoading && (
+        <Animated.View style={[s.stickyBar, animStyle(5)]}>
+          <TouchableOpacity style={s.stickyBtn} activeOpacity={0.9}>
+            <Text style={s.stickyBtnText}>
+              Add plan to cart — ₹{planTotal.toLocaleString('en-IN')}
+            </Text>
+          </TouchableOpacity>
+        </Animated.View>
+      )}
 
     </SafeAreaView>
   );
@@ -534,9 +640,14 @@ const tStyles = StyleSheet.create({
 // ─── Screen styles ─────────────────────────────────────────────────────────
 const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: '#F8F9FB' },
+  rootLoading: { backgroundColor: '#1A2540' },
   scroll: {
     alignItems: 'center',
-    paddingBottom: 100, // clears sticky button
+    paddingBottom: 100,
+  },
+  scrollLoading: {
+    // Centre the photo vertically during loading — no bottom padding needed
+    paddingBottom: 0,
   },
 
   // Nav bar
@@ -549,6 +660,10 @@ const s = StyleSheet.create({
     gap: 4,
     alignItems: 'center',
     marginBottom: 20,
+  },
+  navBarLoading: {
+    // Seamless with the dark page — remove bottom separator gap
+    marginBottom: 12,
   },
   navBrand: {
     fontSize: 10,
@@ -588,6 +703,33 @@ const s = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: '#FFFFFF',
     opacity: 0.9,
+  },
+
+  // Overlay that sits on top of the photo while MediaPipe is running
+  analysisOverlay: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: 'rgba(26,37,64,0.55)',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    paddingBottom: 20,
+  },
+
+  // Caption below photo during loading
+  loadingCaption: {
+    alignItems: 'center',
+    marginTop: 24,
+    gap: 6,
+  },
+  loadingTitle: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: '700',
+    letterSpacing: 0.2,
+  },
+  loadingSubtitle: {
+    color: 'rgba(255,255,255,0.5)',
+    fontSize: 14,
+    fontWeight: '400',
   },
 
   // Summary card
