@@ -338,7 +338,11 @@ export default function SkinReportScreen() {
       >
         {/* ── Nav bar — always visible ── */}
         <View style={[s.navBar, isLoading && s.navBarLoading]}>
-          <Text style={s.navBrand}>MAN MATTERS</Text>
+          <Image
+            source={require('../../assets/images/mm-logo-white.png')}
+            style={{ width: 140, height: 44, resizeMode: 'contain', marginBottom: 4 }}
+            accessibilityLabel="Man Matters"
+          />
           <Text style={s.navTitle}>Skin Assessment Report</Text>
         </View>
 
