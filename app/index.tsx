@@ -10,7 +10,7 @@ export default function WelcomeScreen() {
       <View style={s.body}>
         <Image
           source={require('../assets/images/mm-logo.png')}
-          style={s.logo}
+          style={{ width: 220, height: 70, resizeMode: 'contain', alignSelf: 'flex-start', marginTop: 52, marginLeft: 20, marginBottom: 48 }}
           accessibilityLabel="Man Matters"
         />
         <Text style={s.headline}>
@@ -46,13 +46,6 @@ const s = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 20,
     gap: 16,
-  },
-  logo: {
-    width: 200,
-    height: 64,
-    resizeMode: 'contain',
-    alignSelf: 'flex-start',
-    marginBottom: 24,
   },
   headline: {
     fontSize: 40,
