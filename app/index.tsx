@@ -6,17 +6,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function WelcomeScreen() {
   return (
     <SafeAreaView style={s.root}>
-      {/* Header */}
-      <View style={s.header}>
+      {/* Hero copy — logo sits inline above the headline */}
+      <View style={s.body}>
         <Image
           source={require('../assets/images/mm-logo.png')}
           style={s.logo}
           accessibilityLabel="Man Matters"
         />
-      </View>
-
-      {/* Hero copy */}
-      <View style={s.body}>
         <Text style={s.headline}>
           Your skin,{'\n'}finally understood.
         </Text>
@@ -45,26 +41,18 @@ export default function WelcomeScreen() {
 const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: '#FFFFFF' },
 
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingLeft: 20,
-    paddingRight: 24,
-    paddingTop: 20,
-    paddingBottom: 8,
-  },
-  logo: {
-    width: 160,
-    height: 52,
-    resizeMode: 'contain',
-  },
-
   body: {
     flex: 1,
     justifyContent: 'center',
-    paddingHorizontal: 24,
+    paddingHorizontal: 20,
     gap: 16,
+  },
+  logo: {
+    width: 200,
+    height: 64,
+    resizeMode: 'contain',
+    alignSelf: 'flex-start',
+    marginBottom: 24,
   },
   headline: {
     fontSize: 40,

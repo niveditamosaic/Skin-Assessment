@@ -110,17 +110,16 @@ const s = StyleSheet.create({
 
   header: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    paddingLeft: 20,
-    paddingRight: 24,
-    paddingTop: 16,
-    paddingBottom: 14,
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
   },
   logo: {
-    width: 160,
-    height: 52,
+    width: 200,
+    height: 64,
     resizeMode: 'contain',
+    alignSelf: 'flex-start',
   },
   closeBtn: {
     padding: 4,
