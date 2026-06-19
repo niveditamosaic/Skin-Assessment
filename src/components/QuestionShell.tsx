@@ -112,13 +112,14 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 24,
+    paddingLeft: 20,
+    paddingRight: 24,
     paddingTop: 16,
     paddingBottom: 14,
   },
   logo: {
-    width: 120,
-    height: 40,
+    width: 160,
+    height: 52,
     resizeMode: 'contain',
   },
   closeBtn: {

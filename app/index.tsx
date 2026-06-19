@@ -46,13 +46,17 @@ const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: '#FFFFFF' },
 
   header: {
-    paddingHorizontal: 24,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingLeft: 20,
+    paddingRight: 24,
     paddingTop: 20,
     paddingBottom: 8,
   },
   logo: {
-    width: 120,
-    height: 40,
+    width: 160,
+    height: 52,
     resizeMode: 'contain',
   },
 
