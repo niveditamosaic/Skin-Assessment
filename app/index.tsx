@@ -10,7 +10,7 @@ export default function WelcomeScreen() {
       <View style={s.body}>
         <Image
           source={require('../assets/images/mm-logo.png')}
-          style={{ width: 140, height: 44, resizeMode: 'contain', alignSelf: 'flex-start', marginTop: 24, marginLeft: 0, marginBottom: 16 }}
+          style={{ width: 140, height: 44, resizeMode: 'contain', alignSelf: 'flex-start', marginTop: 48, marginLeft: 0, marginBottom: 24 }}
           accessibilityLabel="Man Matters"
         />
         <Text style={s.headline}>
