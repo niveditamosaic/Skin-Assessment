@@ -1,55 +1,102 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { PrimaryButton } from '../src/components/PrimaryButton';
 
 export default function WelcomeScreen() {
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
-        <Text style={styles.brand}>Man Matters</Text>
-        <Text style={styles.headline}>Your skin, finally understood.</Text>
-        <Text style={styles.subtext}>
-          Answer 6 quick questions + a 10-second face scan.
+    <SafeAreaView style={s.root}>
+      {/* Header */}
+      <View style={s.header}>
+        <Image
+          source={require('../assets/images/mm-logo.png')}
+          style={s.logo}
+          accessibilityLabel="Man Matters"
+        />
+      </View>
+
+      {/* Hero copy */}
+      <View style={s.body}>
+        <Text style={s.headline}>
+          Your skin,{'\n'}finally understood.
+        </Text>
+        <Text style={s.subtext}>
+          Answer 6 quick questions and get a personalised treatment plan for your skin concern.
         </Text>
       </View>
-      <PrimaryButton
-        label="Start my skin assessment"
-        onPress={() => router.push('/assessment/q1-details')}
-      />
+
+      {/* CTA */}
+      <View style={s.footer}>
+        <TouchableOpacity
+          style={s.ctaBtn}
+          onPress={() => router.push('/assessment/q1-details')}
+          activeOpacity={0.85}
+        >
+          <Text style={s.ctaBtnText}>Start my skin assessment</Text>
+        </TouchableOpacity>
+        <Text style={s.disclaimer}>
+          Takes about 2 minutes. No account needed.
+        </Text>
+      </View>
     </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    justifyContent: 'space-between',
+const s = StyleSheet.create({
+  root: { flex: 1, backgroundColor: '#FFFFFF' },
+
+  header: {
+    paddingHorizontal: 24,
+    paddingTop: 20,
+    paddingBottom: 8,
   },
-  content: {
+  logo: {
+    width: 120,
+    height: 40,
+    resizeMode: 'contain',
+  },
+
+  body: {
     flex: 1,
     justifyContent: 'center',
     paddingHorizontal: 24,
     gap: 16,
   },
-  brand: {
-    fontSize: 14,
-    fontWeight: '700',
-    letterSpacing: 2,
-    color: '#888',
-    textTransform: 'uppercase',
-  },
   headline: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: '#1A1A1A',
-    lineHeight: 40,
+    fontSize: 40,
+    fontWeight: '800',
+    color: '#1A2540',
+    lineHeight: 48,
+    letterSpacing: -0.5,
   },
   subtext: {
     fontSize: 16,
-    color: '#555',
-    lineHeight: 24,
+    color: '#5C6B80',
+    lineHeight: 25,
+    maxWidth: 320,
+  },
+
+  footer: {
+    paddingHorizontal: 24,
+    paddingBottom: 32,
+    gap: 14,
+    alignItems: 'center',
+  },
+  ctaBtn: {
+    backgroundColor: '#1A2540',
+    borderRadius: 8,
+    paddingVertical: 17,
+    alignItems: 'center',
+    width: '100%',
+  },
+  ctaBtnText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  disclaimer: {
+    fontSize: 13,
+    color: '#9AA5B4',
+    textAlign: 'center',
   },
 });

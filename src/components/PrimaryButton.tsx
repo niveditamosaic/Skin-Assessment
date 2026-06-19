@@ -10,36 +10,33 @@ interface Props {
 export function PrimaryButton({ label, onPress, disabled = false }: Props) {
   return (
     <TouchableOpacity
-      style={[styles.button, disabled && styles.disabled]}
+      style={[s.button, disabled && s.disabled]}
       onPress={onPress}
       disabled={disabled}
-      activeOpacity={0.8}
+      activeOpacity={0.85}
     >
-      <Text style={[styles.label, disabled && styles.disabledLabel]}>
-        {label}
-      </Text>
+      <Text style={[s.label, disabled && s.disabledLabel]}>{label}</Text>
     </TouchableOpacity>
   );
 }
 
-const styles = StyleSheet.create({
+const s = StyleSheet.create({
   button: {
-    backgroundColor: '#1A1A1A',
-    borderRadius: 12,
+    flex: 1,
+    backgroundColor: '#1A2540',
+    borderRadius: 8,
     paddingVertical: 16,
     alignItems: 'center',
-    marginHorizontal: 24,
-    marginBottom: 32,
   },
   disabled: {
-    backgroundColor: '#E5E5E5',
+    backgroundColor: '#C8CDD9',
   },
   label: {
     color: '#FFFFFF',
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   disabledLabel: {
-    color: '#AAAAAA',
+    color: 'rgba(255,255,255,0.6)',
   },
 });

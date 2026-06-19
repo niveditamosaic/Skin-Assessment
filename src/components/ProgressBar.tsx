@@ -1,47 +1,30 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { TOTAL_STEPS } from '../constants/questions';
 
 interface Props {
-  currentStep: number; // 1-based
+  currentStep: number;
 }
 
 export function ProgressBar({ currentStep }: Props) {
-  const progress = currentStep / TOTAL_STEPS;
+  const pct = Math.min(currentStep / TOTAL_STEPS, 1);
 
   return (
-    <View style={styles.container}>
-      <View style={styles.track}>
-        <View style={[styles.fill, { flex: progress }]} />
-        <View style={{ flex: 1 - progress }} />
-      </View>
-      <Text style={styles.label}>
-        Question {currentStep} of {TOTAL_STEPS}
-      </Text>
+    <View style={s.track}>
+      <View style={[s.fill, { flex: pct }]} />
+      <View style={{ flex: 1 - pct }} />
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    paddingHorizontal: 24,
-    paddingTop: 12,
-    paddingBottom: 8,
-    gap: 6,
-  },
+const s = StyleSheet.create({
   track: {
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: '#E5E5E5',
+    height: 3,
+    backgroundColor: '#E8E8E8',
     flexDirection: 'row',
     overflow: 'hidden',
   },
   fill: {
-    backgroundColor: '#1A1A1A',
-    borderRadius: 2,
-  },
-  label: {
-    fontSize: 12,
-    color: '#888',
+    backgroundColor: '#1A2540',
   },
 });

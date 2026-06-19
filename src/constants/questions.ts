@@ -5,17 +5,17 @@ export const Q2_OPTIONS = [
   {
     value: 'oily' as const,
     label: 'Oily',
-    description: 'Shiny or greasy feel by mid-morning',
-  },
-  {
-    value: 'dry' as const,
-    label: 'Dry',
-    description: 'Tight or flaky feel throughout the day',
+    description: 'Looks good in the morning, gets shiny by noon',
   },
   {
     value: 'combination' as const,
     label: 'Combination',
-    description: 'Oily T-zone, dry on cheeks',
+    description: 'Oily on the forehead and nose, normal or dry on cheeks',
+  },
+  {
+    value: 'dry' as const,
+    label: 'Dry',
+    description: 'Feels tight or flaky, especially in AC or cold weather',
   },
 ];
 
@@ -23,17 +23,17 @@ export const Q3_OPTIONS = [
   {
     value: 'acne' as const,
     label: 'Acne',
-    description: 'Pimples, breakouts, oily skin',
+    description: 'Pimples, whiteheads, or recurring breakouts',
   },
   {
     value: 'dark_spots' as const,
-    label: 'Dark Spots or Pigmentation',
-    description: "Marks that won't go away, uneven tone",
+    label: 'Dark Spots',
+    description: 'Marks left behind after a pimple heals',
   },
   {
     value: 'tanning' as const,
-    label: 'Tanning or Uneven Skin',
-    description: 'Sun damage, dullness, patchy skin',
+    label: 'Tanning',
+    description: 'Darkening from sun exposure on face or neck',
   },
 ];
 

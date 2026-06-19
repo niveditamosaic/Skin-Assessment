@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, View } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 
 interface Props {
   label: string;
@@ -11,72 +11,57 @@ interface Props {
 export function OptionCard({ label, description, selected, onPress }: Props) {
   return (
     <TouchableOpacity
-      style={[styles.card, selected && styles.selected]}
+      style={[s.card, selected ? s.cardSelected : s.cardUnselected]}
       onPress={onPress}
       activeOpacity={0.7}
     >
-      <View style={styles.indicator}>
-        {selected && <View style={styles.dot} />}
-      </View>
-      <View style={styles.text}>
-        <Text style={[styles.label, selected && styles.selectedLabel]}>
-          {label}
+      <Text style={[s.label, selected && s.labelSelected]}>{label}</Text>
+      {description ? (
+        <Text style={[s.description, selected && s.descriptionSelected]}>
+          {description}
         </Text>
-        {description ? (
-          <Text style={styles.description}>{description}</Text>
-        ) : null}
-      </View>
+      ) : null}
     </TouchableOpacity>
   );
 }
 
-const styles = StyleSheet.create({
+const s = StyleSheet.create({
   card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1.5,
-    borderColor: '#E5E5E5',
-    borderRadius: 12,
-    paddingVertical: 16,
-    paddingHorizontal: 16,
     marginHorizontal: 24,
     marginBottom: 12,
-    backgroundColor: '#FFFFFF',
-    gap: 12,
-  },
-  selected: {
-    borderColor: '#1A1A1A',
-    backgroundColor: '#F5F5F5',
-  },
-  indicator: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: '#CCCCCC',
+    borderRadius: 8,
+    paddingVertical: 18,
+    paddingHorizontal: 20,
     alignItems: 'center',
-    justifyContent: 'center',
   },
-  dot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: '#1A1A1A',
+  cardUnselected: {
+    borderWidth: 1,
+    borderColor: '#D0D0D0',
+    backgroundColor: '#FFFFFF',
   },
-  text: {
-    flex: 1,
+  cardSelected: {
+    borderWidth: 2,
+    borderColor: '#1A2540',
+    backgroundColor: '#F0F2F6',
   },
   label: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#1A1A1A',
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#1A2540',
+    textAlign: 'center',
   },
-  selectedLabel: {
-    color: '#1A1A1A',
+  labelSelected: {
+    color: '#1A2540',
   },
   description: {
-    fontSize: 13,
-    color: '#888',
-    marginTop: 2,
+    fontSize: 14,
+    color: '#666666',
+    textAlign: 'center',
+    marginTop: 4,
+    lineHeight: 20,
+  },
+  descriptionSelected: {
+    color: '#1A2540',
+    opacity: 0.75,
   },
 });
