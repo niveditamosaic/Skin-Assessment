@@ -25,7 +25,7 @@ export default function Q5cTanLocationScreen() {
       onNext={() => router.push('/assessment/q6c-tan-sun-exposure' as any)}
       nextDisabled={!profile.spot_location}
     >
-      <Text style={{ fontSize: 28, fontWeight: '700', color: '#1A2540', lineHeight: 36, paddingHorizontal: 24, marginBottom: 32 }}>
+      <Text style={{ fontSize: 28, fontWeight: '700', color: '#1A3A6B', lineHeight: 36, paddingHorizontal: 24, marginBottom: 32 }}>
         Where on your face is the tanning or unevenness most visible?
       </Text>
 

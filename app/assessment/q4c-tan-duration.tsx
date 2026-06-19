@@ -24,7 +24,7 @@ export default function Q4cTanDurationScreen() {
       onNext={() => router.push('/assessment/q5c-tan-location' as any)}
       nextDisabled={!profile.spot_duration}
     >
-      <Text style={{ fontSize: 28, fontWeight: '700', color: '#1A2540', lineHeight: 36, paddingHorizontal: 24, marginBottom: 32 }}>
+      <Text style={{ fontSize: 28, fontWeight: '700', color: '#1A3A6B', lineHeight: 36, paddingHorizontal: 24, marginBottom: 32 }}>
         How long have you had tanning or uneven patches on your face?
       </Text>
 

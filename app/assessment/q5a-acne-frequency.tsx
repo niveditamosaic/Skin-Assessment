@@ -24,7 +24,7 @@ export default function Q5aAcneFrequencyScreen() {
       onNext={() => router.push('/assessment/q6a-acne-duration' as any)}
       nextDisabled={!profile.acne_frequency}
     >
-      <Text style={{ fontSize: 28, fontWeight: '700', color: '#1A2540', lineHeight: 36, paddingHorizontal: 24, marginBottom: 32 }}>
+      <Text style={{ fontSize: 28, fontWeight: '700', color: '#1A3A6B', lineHeight: 36, paddingHorizontal: 24, marginBottom: 32 }}>
         How often do you get breakouts?
       </Text>
 

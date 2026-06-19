@@ -20,7 +20,7 @@ export default function Q3ConcernScreen() {
       onNext={() => router.push(routeAfterQ3(profile.concerns) as any)}
       nextDisabled={profile.concerns.length === 0}
     >
-      <Text style={{ fontSize: 28, fontWeight: '700', color: '#1A2540', lineHeight: 36, paddingHorizontal: 24, marginBottom: 32 }}>
+      <Text style={{ fontSize: 28, fontWeight: '700', color: '#1A3A6B', lineHeight: 36, paddingHorizontal: 24, marginBottom: 32 }}>
         What is your biggest skin concern right now?
       </Text>
       <Text style={{ fontSize: 14, color: '#9AA5B4', paddingHorizontal: 24, marginBottom: 20, marginTop: -20 }}>

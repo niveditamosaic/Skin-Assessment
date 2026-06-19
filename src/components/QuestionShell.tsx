@@ -117,8 +117,8 @@ const s = StyleSheet.create({
     paddingBottom: 16,
   },
   logo: {
-    width: 180,
-    height: 56,
+    width: 130,
+    height: 42,
     resizeMode: 'contain',
     alignSelf: 'flex-start',
   },

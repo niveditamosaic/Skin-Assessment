@@ -25,7 +25,7 @@ export default function Q4aAcneTypeScreen() {
       onNext={() => router.push(routeAfterQ4a(profile.acne_type!) as any)}
       nextDisabled={!profile.acne_type}
     >
-      <Text style={{ fontSize: 28, fontWeight: '700', color: '#1A2540', lineHeight: 36, paddingHorizontal: 24, marginBottom: 32 }}>
+      <Text style={{ fontSize: 28, fontWeight: '700', color: '#1A3A6B', lineHeight: 36, paddingHorizontal: 24, marginBottom: 32 }}>
         What type of acne do you usually get?
       </Text>
 

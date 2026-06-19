@@ -19,7 +19,7 @@ export default function Q2SkinTypeScreen() {
       onNext={() => router.push('/assessment/q3-concern' as any)}
       nextDisabled={!profile.skin_type}
     >
-      <Text style={{ fontSize: 28, fontWeight: '700', color: '#1A2540', lineHeight: 36, paddingHorizontal: 24, marginBottom: 32 }}>
+      <Text style={{ fontSize: 28, fontWeight: '700', color: '#1A3A6B', lineHeight: 36, paddingHorizontal: 24, marginBottom: 32 }}>
         How does your skin feel a few hours after washing your face?
       </Text>
 
