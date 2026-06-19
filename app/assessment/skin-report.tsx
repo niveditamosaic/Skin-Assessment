@@ -340,7 +340,7 @@ export default function SkinReportScreen() {
         <View style={[s.navBar, isLoading && s.navBarLoading]}>
           <Image
             source={require('../../assets/images/mm-logo-white.png')}
-            style={{ width: 140, height: 44, resizeMode: 'contain', marginBottom: 4 }}
+            style={{ width: 140, height: 44, resizeMode: 'contain', marginBottom: 2 }}
             accessibilityLabel="Man Matters"
           />
           <Text style={s.navTitle}>Skin Assessment Report</Text>
@@ -658,8 +658,8 @@ const s = StyleSheet.create({
   navBar: {
     width: '100%',
     backgroundColor: '#1A2540',
-    paddingTop: 18,
-    paddingBottom: 20,
+    paddingTop: 44,
+    paddingBottom: 12,
     paddingHorizontal: 24,
     gap: 4,
     alignItems: 'center',
@@ -676,7 +676,7 @@ const s = StyleSheet.create({
     letterSpacing: 3,
   },
   navTitle: {
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: '700',
     color: '#FFFFFF',
     letterSpacing: 0.3,
