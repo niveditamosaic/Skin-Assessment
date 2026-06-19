@@ -24,7 +24,7 @@ export default function Q6aAcneDurationScreen() {
       onNext={() => { finaliseSeverityAndPlan(); router.push('/assessment/scan-intro' as any); }}
       nextDisabled={!profile.acne_duration}
     >
-      <Text style={{ fontSize: 26, fontWeight: '800', color: '#1A2540', lineHeight: 34, paddingHorizontal: 24, marginBottom: 32 }}>
+      <Text style={{ fontSize: 28, fontWeight: '700', color: '#1A2540', lineHeight: 36, paddingHorizontal: 24, marginBottom: 32 }}>
         How long have you been dealing with breakouts?
       </Text>
 

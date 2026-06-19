@@ -24,7 +24,7 @@ export default function Q6bSunExposureScreen() {
       onNext={() => { finaliseSeverityAndPlan(); router.push('/assessment/scan-intro' as any); }}
       nextDisabled={!profile.sun_exposure}
     >
-      <Text style={{ fontSize: 26, fontWeight: '800', color: '#1A2540', lineHeight: 34, paddingHorizontal: 24, marginBottom: 32 }}>
+      <Text style={{ fontSize: 28, fontWeight: '700', color: '#1A2540', lineHeight: 36, paddingHorizontal: 24, marginBottom: 32 }}>
         How much time do you spend outdoors on a typical day?
       </Text>
 

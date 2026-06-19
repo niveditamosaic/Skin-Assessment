@@ -30,7 +30,7 @@ const s = StyleSheet.create({
     marginHorizontal: 24,
     marginBottom: 12,
     borderRadius: 8,
-    paddingVertical: 18,
+    paddingVertical: 20,
     paddingHorizontal: 20,
     alignItems: 'center',
   },
@@ -55,7 +55,7 @@ const s = StyleSheet.create({
   },
   description: {
     fontSize: 14,
-    color: '#666666',
+    color: '#4A5568',
     textAlign: 'center',
     marginTop: 4,
     lineHeight: 20,

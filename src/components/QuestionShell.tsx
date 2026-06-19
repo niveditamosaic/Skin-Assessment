@@ -113,7 +113,7 @@ const s = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingTop: 52,
+    paddingTop: 28,
     paddingBottom: 16,
   },
   logo: {
