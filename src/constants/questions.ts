@@ -32,7 +32,7 @@ export const Q3_OPTIONS = [
   },
   {
     value: 'tanning' as const,
-    label: 'Tanning',
+    label: 'Tanning / Sun damage',
     description: 'Darkening from sun exposure on face or neck',
   },
 ];

@@ -9,9 +9,10 @@ import { routeAfterQ4a } from '../../src/logic/branchRouter';
 import { useGoBack } from '../../src/hooks/useGoBack';
 
 const OPTIONS: { value: AcneType; label: string; description: string }[] = [
-  { value: 'red_pimples', label: 'Red pimples', description: 'Raised red bumps, no visible pus' },
-  { value: 'pus',         label: 'Pus pimples', description: 'Whiteheads or yellow-tipped pimples' },
-  { value: 'cystic',      label: 'Cystic',      description: 'Deep, painful lumps under the skin' },
+  { value: 'red_painless', label: 'Red painless pimples', description: 'Small red bumps that are not painful or tender' },
+  { value: 'red_pimples',  label: 'Red painful pimples',  description: 'Raised red bumps that are sore or tender to touch' },
+  { value: 'pus',          label: 'Pus pimples',          description: 'Whiteheads or yellow-tipped pimples' },
+  { value: 'cystic',       label: 'Cystic',               description: 'Deep, painful lumps under the skin' },
 ];
 
 export default function Q4aAcneTypeScreen() {

@@ -6,7 +6,7 @@ export interface ProductItem {
 export const PRODUCT_PRICES: Record<string, string> = {
   'Anti-Acne Face Wash':               '₹599',
   'Pigmentation Serum':                '₹799',
-  'Sunscreen SPF 50':                  '₹699',
+  'Sunscreen SPF 50':                  '₹499',
   'Clindamycin / Adapalene Gel':       '₹899',
   'Tretinoin Night Cream':             '₹1,299',
   'Hydroquinone / Azelaic Acid Cream': '₹999',
@@ -19,6 +19,15 @@ export interface PlanDefinition {
 }
 
 export const PLANS: Record<number, PlanDefinition> = {
+  0: {
+    name: 'Light Acne Care',
+    description: 'A gentle OTC routine to manage occasional breakouts without prescription ingredients.',
+    products: [
+      { name: 'Anti-Acne Face Wash', type: 'otc' },
+      { name: 'Pigmentation Serum',  type: 'otc' },
+      { name: 'Sunscreen SPF 50',    type: 'otc' },
+    ],
+  },
   1: {
     name: 'Mild Acne Care',
     description: 'A targeted daily routine to clear active breakouts and stop new ones from forming.',

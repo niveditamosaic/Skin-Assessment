@@ -82,6 +82,7 @@ const PRODUCT_INGREDIENTS: Record<string, string[]> = {
 
 // ─── Cause analysis copy (per plan) ───────────────────────────────────────
 const CAUSE_ANALYSIS: Record<number, string> = {
+  0: 'Your skin is experiencing occasional, mild surface-level breakouts — small red bumps without inflammation or pus. This is typically caused by minor pore congestion from excess oil, environmental exposure, or inconsistent cleansing. At this stage, there is no underlying infection or chronic follicular damage. A consistent OTC routine with the right face wash and daily SPF is usually enough to keep your skin clear.',
   1: 'Your skin is producing excess sebum which is blocking pores and causing breakouts. This is commonly triggered by hormonal fluctuations, stress, or diet. Your skin type makes you more prone to congestion, especially in the T-zone. The good news — mild acne responds very well to the right topical routine.',
   2: 'Your skin is dealing with two connected issues — active breakouts and the pigmentation marks they leave behind. Each new pimple triggers inflammation that deposits excess melanin in the skin. Hormonal shifts and sun exposure amplify both concerns. Treating acne and pigmentation simultaneously is the only way to break this cycle.',
   3: 'Your skin is experiencing a persistent inflammatory response that keeps producing new breakouts despite your efforts. This typically involves overactive sebaceous glands, bacterial overgrowth, and chronically clogged follicles. Stress hormones and dietary triggers may be accelerating the cycle. Prescription-strength Tretinoin is the clinically proven way to reset this pattern.',
@@ -99,6 +100,12 @@ interface TimelinePhase {
 }
 
 const TIMELINE: Record<number, TimelinePhase[]> = {
+  0: [
+    { period: 'Week 1–2',   phase: 'RESET PHASE',   accentColor: '#EF4444', bullets: ['Excess oil and surface congestion reduce with daily cleansing', 'Skin feels noticeably cleaner'] },
+    { period: 'Month 1–2',  phase: 'REPAIR PHASE',  accentColor: '#F97316', bullets: ['Breakouts become less frequent', 'Skin tone begins to even out'] },
+    { period: 'Month 2–3',  phase: 'RENEW PHASE',   accentColor: '#22C55E', bullets: ['Clear, balanced skin with no active breakouts', 'Daily SPF prevents new congestion'] },
+    { period: 'Ongoing',    phase: 'PLAN FOR LIFE', accentColor: '#1A2540', bullets: ['Simple consistent OTC routine keeps skin clear long-term'] },
+  ],
   1: [
     { period: 'Month 1–2',  phase: 'RESET PHASE',       accentColor: '#EF4444', bullets: ['Breakouts reduce in frequency', 'Skin feels less oily and congested'] },
     { period: 'Month 3–4',  phase: 'REPAIR PHASE',      accentColor: '#F97316', bullets: ['Pores begin to clear, fewer new pimples forming', 'Skin tone starts to even out'] },
@@ -225,6 +232,7 @@ export default function SkinReportScreen() {
   const causeText = profile.plan_id ? CAUSE_ANALYSIS[profile.plan_id] : '';
   const planTotal = profile.plan_id ? calculatePlanTotal(profile.plan_id) : 0;
   const isSevere  = profile.severity === 'severe' || profile.derm_flag;
+  const isLight   = profile.severity === 'light';
 
   console.log('[SkinReport] plan_id:', profile.plan_id, '| concerns:', JSON.stringify(profile.concerns));
   console.log('[SkinReport] products:', plan ? plan.products.map(p => p.name).join(', ') : 'none');
@@ -394,9 +402,9 @@ export default function SkinReportScreen() {
               </View>
               <View style={s.summaryField}>
                 <Text style={s.summaryLabel}>SEVERITY</Text>
-                <View style={[s.severityBadge, isSevere ? s.severeBadge : s.mildBadge]}>
-                  <Text style={[s.severityBadgeText, isSevere ? s.severeBadgeText : s.mildBadgeText]}>
-                    {isSevere ? 'Severe' : 'Mild'}
+                <View style={[s.severityBadge, isSevere ? s.severeBadge : isLight ? s.lightBadge : s.mildBadge]}>
+                  <Text style={[s.severityBadgeText, isSevere ? s.severeBadgeText : isLight ? s.lightBadgeText : s.mildBadgeText]}>
+                    {isSevere ? 'Severe' : isLight ? 'Light' : 'Mild'}
                   </Text>
                 </View>
               </View>
@@ -778,9 +786,11 @@ const s = StyleSheet.create({
   },
   severeBadge:     { backgroundColor: '#FEE2E2' },
   mildBadge:       { backgroundColor: '#DCFCE7' },
+  lightBadge:      { backgroundColor: '#FEF9C3' },
   severityBadgeText: { fontSize: 12, fontWeight: '700' },
   severeBadgeText: { color: '#DC2626' },
   mildBadgeText:   { color: '#16A34A' },
+  lightBadgeText:  { color: '#CA8A04' },
   dermCta: {
     backgroundColor: '#22C55E',
     borderRadius: 10,

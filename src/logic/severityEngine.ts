@@ -12,6 +12,11 @@ export function calculateSeverity(
   frequency: AcneFrequency | null,
   duration: AcneDuration | null,
 ): SeverityResult {
+  // Red painless pimples are always light — no Rx needed regardless of other answers
+  if (acneType === 'red_painless') {
+    return { severity: 'light', derm_flag: false };
+  }
+
   // Cystic is always severe with derm referral, regardless of frequency/duration
   if (acneType === 'cystic') {
     return { severity: 'severe', derm_flag: true };

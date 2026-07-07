@@ -167,8 +167,10 @@ export const useAssessmentStore = create<AssessmentState>((set, get) => ({
       updatedConcerns.push('dark_spots');
     }
 
-    if (profile.scan_acne === 'severe' && severity === 'mild') {
+    if (profile.scan_acne === 'severe' && (severity === 'mild' || severity === 'light')) {
       severity = 'severe';
+    } else if ((profile.scan_acne === 'moderate' || profile.scan_acne === 'mild') && severity === 'light') {
+      severity = 'mild';
     }
 
     const plan_id = determinePlan(updatedConcerns, severity);

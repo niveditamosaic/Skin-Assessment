@@ -11,6 +11,7 @@ export function determinePlan(
   const hasOtherWithAcne = hasDarkSpots || hasTanning;
 
   if (hasAcne) {
+    if (severity === 'light') return 0;
     if (severity === 'mild') return hasOtherWithAcne ? 2 : 1;
     // severe (or null treated as severe for safety)
     return hasOtherWithAcne ? 4 : 3;

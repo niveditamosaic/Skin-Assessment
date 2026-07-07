@@ -4,13 +4,13 @@ export type SkinType = 'oily' | 'dry' | 'combination';
 
 export type Concern = 'acne' | 'dark_spots' | 'tanning';
 
-export type AcneType = 'red_pimples' | 'pus' | 'cystic';
+export type AcneType = 'red_painless' | 'red_pimples' | 'pus' | 'cystic';
 
 export type AcneFrequency = 'rarely' | 'monthly' | 'always';
 
 export type AcneDuration = 'under_6m' | '6m_2yr' | 'over_2yr';
 
-export type Severity = 'mild' | 'severe';
+export type Severity = 'light' | 'mild' | 'severe';
 
 export type ScanOiliness = 'low' | 'medium' | 'high';
 
@@ -22,7 +22,7 @@ export type ScanTan = 'none' | 'patchy' | 'widespread';
 
 export type ScanTexture = 'smooth' | 'rough' | 'uneven';
 
-export type PlanId = 1 | 2 | 3 | 4 | 5 | 6;
+export type PlanId = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 // Duration/location enums shared across dark-spots and tanning branches
 export type SpotDuration = 'under_3m' | '3m_1yr' | 'over_1yr';
