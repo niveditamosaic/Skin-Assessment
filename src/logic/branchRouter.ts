@@ -22,8 +22,11 @@ export function routeAfterQ3(concerns: Concern[]): AssessmentRoute {
   return '/assessment/q4c-tan-duration';
 }
 
-// After Q4a: all options proceed to Q5a regardless of acne type.
-// Cystic sets derm_flag + severity in the store but does not skip questions.
-export function routeAfterQ4a(_acneType: AcneType): AssessmentRoute {
+// red_painless and cystic skip frequency/duration — severity is determined by
+// acne type alone, so Q5a/Q6a would contribute nothing.
+export function routeAfterQ4a(acneType: AcneType): AssessmentRoute {
+  if (acneType === 'red_painless' || acneType === 'cystic') {
+    return '/assessment/scan-intro';
+  }
   return '/assessment/q5a-acne-frequency';
 }

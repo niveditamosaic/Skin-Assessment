@@ -16,14 +16,23 @@ const OPTIONS: { value: AcneType; label: string; description: string }[] = [
 ];
 
 export default function Q4aAcneTypeScreen() {
-  const { profile, setAcneType } = useAssessmentStore();
+  const { profile, setAcneType, finaliseSeverityAndPlan } = useAssessmentStore();
   const goBack = useGoBack('/assessment/q3-concern');
+
+  const handleNext = () => {
+    const acneType = profile.acne_type!;
+    // For types that skip Q5a/Q6a, finalise severity now before navigating.
+    if (acneType === 'red_painless' || acneType === 'cystic') {
+      finaliseSeverityAndPlan();
+    }
+    router.push(routeAfterQ4a(acneType) as any);
+  };
 
   return (
     <QuestionShell
       step={4}
       onBack={goBack}
-      onNext={() => router.push(routeAfterQ4a(profile.acne_type!) as any)}
+      onNext={handleNext}
       nextDisabled={!profile.acne_type}
     >
       <Text style={{ fontSize: 28, fontWeight: '700', color: '#1A3A6B', lineHeight: 36, paddingHorizontal: 24, marginBottom: 32 }}>
